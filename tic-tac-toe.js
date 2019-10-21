@@ -1,5 +1,6 @@
 window.addEventListener('DOMContentLoaded', (event) => {
     layout() //exercise 1
+    
 });
  
 
@@ -21,8 +22,9 @@ const layout = () =>{
             squares[i].classList.remove("hover");
         })
       }
-
+    
     game(squares);
+    restart(squares);
 
 }
 
@@ -31,8 +33,6 @@ const game =(squares) =>{
     let p =0;
     let olist = "";
     let xlist = "";
-
-
     for (let i = 0; i < squares.length; ++i) {        
         squares[i].addEventListener('click',()=>{
             if(squares[i].innerHTML==""){
@@ -41,7 +41,6 @@ const game =(squares) =>{
                         squares[i].classList.add("X");
                         squares[i].innerHTML= "X";
                         xlist+= squares[i].getAttribute("id");
-                        console.log(xlist);
                         p = player;
                     }
                     
@@ -51,20 +50,15 @@ const game =(squares) =>{
                             squares[i].classList.add("O");
                             squares[i].innerHTML= "O";
                             olist+= squares[i].getAttribute("id");
-                            console.log(olist);
-                            console.log(p);
                             p = player;
-                            console.log(p);
                     } 
                     player=0;              
                 }
 
             }
-            if (olist.length>=3 || xlist.length>=3){
-                console.log("I'm in this if");
-                console.log(p,olist,xlist);
+            if (xlist.length>=3){
+                console.log("running check winner");
                 checkWinner(p,olist,xlist);
-                console.log("player sending ",p);
             }
         })
     }
@@ -73,16 +67,15 @@ const game =(squares) =>{
 const checkWinner =(player,xlist,olist) => {
     const win_combos = ['123','456','789','147','258','369','159','357'];
     let val = false;
-    if (player==0){
+    console.log(player);
+    if (player==1){
         console.log("checkWinner player X")
         for (let i=0;i<8;i++){
-            console.log("win_combos");
-            console.log(win_combos[i]);
             val= searchCombos(xlist,win_combos[i]);
             if (val) break;
         }
     }else{
-        if (player==1){
+        if (player==0){
             console.log("checkWinner player O")
             for (let i=0;i<8;i++){
                 val= searchCombos(olist,win_combos[i]);
@@ -90,43 +83,45 @@ const checkWinner =(player,xlist,olist) => {
             }
         }
     }
-    /**}else{
-        if (xlist.length+olist.length== 9){
-            // no winner, restart
-    }*/
-
-    if(val){
-        announceWinner(player);
-    }
+    if(val) announceWinner(player);
 }
 
 
 function searchCombos(id_str,win_string){
-    console.log("I'm in searchCombos. id string, win string, res");
-    let common = false;
-    i =0;
-    while(!common){
-        console.log(win_string[i]);
-        common = id_str.includes(win_string.charAt(i));
-        i++;
+    console.log("I'm in searchCombos. id_Array, win_array");
+    let winVal=false;
+    var id_array = id_str.split('').sort();
+    var win_array = win_string.split('').sort();
+    console.log(id_array)
+    console.log(win_array);
+
+    if ( id_array.some( el=> win_array.includes(el) ) ){ 
+        console.log("win and idlist has something in common");
+        win_array = win_array.filter(c => !id_array.includes(c));
+        console.log("this is win array");
+        console.log(win_array);
+        if (win_array==0){
+            return true;
+        }
     }
-    if (common){
-        var ar1 = id_str.split('').sort();
-        console.log(ar1);
-        var ar2 = win_string.split('').sort();
-        console.log(ar2);
-        res = ar1.filter(f => !ar2.includes(f));
-        console.log(res);
-        return res.length==0;
-    }
-    return false;
+    return winVal;
 }
 
 function announceWinner(player){
-    if (player ==0) player = 'X';
-    if (player ==1) player = 'O';
+    let winner='';
+    if (player ==0) winner = 'X';
+    if (player ==1) winner = 'O';
     let disp = document.getElementById("status");
     disp.classList.add("you-won");
-    disp.innerHTML = ("Congratulations! " +player+ " is the Winner!");
+    disp.innerHTML = ("Congratulations! " +winner+ " is the Winner!");
 }
 
+function restart(squares){
+    resetBtn= document.querySelector(".btn");
+    resetBtn.addEventListener("click",()=>{
+        for (let i = 0; i < squares.length; ++i) {        
+            squares[i].innerHTML="";
+            squares[i].classList=("square"); 
+        }
+    })
+    console.log("rest")}
